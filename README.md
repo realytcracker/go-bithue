@@ -12,7 +12,7 @@ send me nudes @ **rapper@gmail.com**.
 - open up `config.json` in an elite text editor.
 - replace `BridgeIP` with the IP address of your Hue bridge.
 - replace `Username` with an authorized username for your Hue bridge.
-- run `go build -o go-bithue`
+- run `go build`
 - run `./go-bithue &`
 - `kill -9` that pid when you're ready to get off mr. bitcoin's wild ride.
 
