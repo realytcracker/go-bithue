@@ -1,6 +1,6 @@
 /*
 go-bithue by ytcracker
-correlate your Philips Hue lights to the bitcoin price on Bitstamp
+correlate your Philips Hue lights to the bitcoin price on Bitfinex
 */
 
 package main
@@ -10,17 +10,18 @@ import (
 	//"fmt"
 	"github.com/realytcracker/gohue"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
 
-//BridgeIP is the ip address of your Hue bridge
-const BridgeIP = "192.168.1.100"
+//Config is loaded from config.json
+type Config struct {
+	BridgeIP string `json:"BridgeIP"`
+	Username string `json:"Username"`
+}
 
-//Username is a Hue API username for your crib or office or whatever
-const Username = "SET ME"
-
-//Ticker is a go struct of bitstamp's json ticker
+//Ticker is a go struct of Bitfinex's json ticker
 type Ticker struct {
 	Mid       string `json:"mid"`
 	Bid       string `json:"bid"`
@@ -34,7 +35,7 @@ type Ticker struct {
 
 func pollBitstamp() {
 	for {
-		time.Sleep(5 * time.Second)
+		time.Sleep(15 * time.Second)
 		getTicker()
 	}
 }
@@ -57,15 +58,6 @@ func getTicker() {
 
 	color := uint16((floor / difference) * 25500)
 
-	/*
-		fmt.Printf("lastprice: %.1f\n", lastprice)
-		fmt.Printf("low: %.1f\n", low)
-		fmt.Printf("high: %.1f\n", high)
-		fmt.Printf("difference: %.1f\n", difference)
-		fmt.Printf("floor: %.1f\n", floor)
-		fmt.Printf("color: %d\n", color)
-	*/
-
 	lights, _ := bridge.GetAllLights()
 	for _, light := range lights {
 		light.SetColorHS(color)
@@ -74,10 +66,13 @@ func getTicker() {
 
 var bridge hue.Bridge
 var ticker Ticker
+var config Config
 
 func main() {
-	bridge.IPAddress = BridgeIP
-	bridge.Username = Username
+	file, _ := os.Open("config.json")
+	json.NewDecoder(file).Decode(&config)
+	bridge.IPAddress = config.BridgeIP
+	bridge.Username = config.Username
 
 	lights, _ := bridge.GetAllLights()
 	for _, light := range lights {
